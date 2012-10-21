@@ -3,23 +3,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#define MAXLENGTH 80
+#define MAXLENGTH 80 /* maximum length of an input line from stdin */
 
-/* TODO: check guidelines */
-
-/* char pointer that points to the string literal ("usage: ...") */
 const char* usage = "usage: myexpand [-t tabstop] [file...]";
-
-char* strexp(char*, int);
 
 int main(int argc, char **argv)
 {
     unsigned int tabstop = 8;
-    int pos = 0;
-    char argshift = 0; /* counts how many options have been used */
+    unsigned int pos = 0;
+    char argshift = 0; /* counts how many options and/or args have been used */
 
     char c;
-    while((c = getopt(argc,argv,":t:")) != -1)
+    while((c = getopt(argc,argv,":t:")) != -1) /* parse input */
     {
         switch(c)
         {
@@ -27,7 +22,7 @@ int main(int argc, char **argv)
                 if(isdigit((int) *optarg)) /* sanity check of the input */
                 {
                     tabstop = atoi(optarg); /* atoi() is forbidden */
-                    argshift += 2; /* +2 if theres an option with a mandatory arg */
+                    argshift += 2; /* option and argument --> 2 fields in argv */
                 }
                 else
                 {
@@ -46,9 +41,8 @@ int main(int argc, char **argv)
         }
     }
 
-    if(argv[optind] == 0) /* no filename specified */
+    if(argv[optind] == 0) /* if no filename specified --> read from stdin */
     {
-        /* read from stdin */
         char* str;
         while(fgets(str,MAXLENGTH,stdin) != 0)
         {
@@ -58,7 +52,7 @@ int main(int argc, char **argv)
                 if(x == '\t')
                 {
                     int p = tabstop * ((pos / tabstop) + 1);
-                    while(pos++ < p) /* postincrement!!! */
+                    while(pos++ < p)
                     {
                         printf(" ");
                     }
@@ -71,16 +65,14 @@ int main(int argc, char **argv)
             }
         }
     }
-    else /* one or more filename(s) specified */
+    else /* --> read file(s) */
     {
         argc -= argshift;
         argv += argshift;
         while(--argc > 0)
         {
             FILE *fp = fopen(*++argv,"r");
-
-            /* fopen returns 0, the NULL pointer, on failure */
-            if(fp == 0)
+            if(fp == 0) /* NULL pointer --> failure */
             {
                 printf("Could not open file: \"%s\"", *argv);
             }
@@ -92,7 +84,7 @@ int main(int argc, char **argv)
                     if(x == '\t')
                     {
                         int p = tabstop * ((pos / tabstop) + 1);
-                        while(pos++ < p) /* postincrement!!! */
+                        while(pos++ < p)
                         {
                             printf(" ");
                         }

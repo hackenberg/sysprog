@@ -6,6 +6,8 @@
 #include <unistd.h>
 #define MAXLENGTH 80 /* maximum length of an input line from stdin */
 
+/* TODO: headerfile erstellen mit z.b. define Maxlength */
+
 const char* usage = "usage: myexpand [-t tabstop] [file...]";
 
 int main(int argc, char **argv)

@@ -109,35 +109,3 @@ int main(int argc, char **argv)
     }
     return 0;
 }
-
-char* strexp(char* str, int tabstop)
-{
-    int pos = 0;
-    char* out;
-    //char out[strlen(str)];
-
-    char x;
-    while((x = *str++) != '\0')
-    //while((*out++ = *str++) != '\0')
-    {
-        if(x == '\t')
-        {
-            int p = tabstop * ((pos / tabstop) + 1);
-            while(pos++ < p) /* postincrement!!! */
-            {
-                *out++ = ' ';
-                pos++;
-            }
-        }
-        else if(x == '\n')
-        {
-            *out++ = x;
-        }
-        else
-        {
-            *out++ = x;
-            pos++;
-        }
-    }
-    return out;
-}

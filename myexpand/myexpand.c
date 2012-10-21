@@ -14,9 +14,9 @@ char* strexp(char*, int);
 
 int main(int argc, char **argv)
 {
-    int tabstop = 8;
-    int pos = 0; /* position innerhalb einer Zeile der Datei */
-    char argshift = 0; /* zählt wie viele Argumente verwendet wurden */
+    unsigned int tabstop = 8;
+    int ptr = 0;
+    char argshift = 0; /* counts how many options have been used */
 
     char c;
     while((c = getopt(argc,argv,":t:")) != -1)
@@ -24,10 +24,10 @@ int main(int argc, char **argv)
         switch(c)
         {
             case 't':
-                if(isdigit((int) *optarg))
+                if(isdigit((int) *optarg)) /* sanity check of the input */
                 {
-                    tabstop = atoi(optarg); /* atoi() ist verboten */
-                    argshift += 2; /* +2 bei optionen mit verpfl. argumenten */
+                    tabstop = atoi(optarg); /* atoi() is forbidden */
+                    argshift += 2; /* +2 if theres an option with a mandatory arg */
                 }
                 else
                 {
@@ -36,7 +36,7 @@ int main(int argc, char **argv)
                 }
                 break;
 
-            case ':': /* nur wenn kein Dateiname und kein Argument vorliegt */
+            case ':': /* only if there's no option AND no filename */
                 fprintf(stderr, usage);
                 return(-1);
 
@@ -46,9 +46,9 @@ int main(int argc, char **argv)
         }
     }
 
-    if(argv[optind] == 0) /* kein Dateiname angegeben */
+    if(argv[optind] == 0) /* no filename specified */
     {
-        /* von stdin einlesen */
+        /* read from stdin */
         char* str;
         while(fgets(str,MAXLENGTH,stdin) != 0)
         {
@@ -76,7 +76,7 @@ int main(int argc, char **argv)
             }
         }
     }
-    else /* einer oder mehrere Dateinamen wurden angegeben */
+    else /* one or more filename(s) specified */
     {
         argc -= argshift;
         argv += argshift;
@@ -122,7 +122,7 @@ int main(int argc, char **argv)
 
 char* strexp(char* str, int tabstop)
 {
-    int pos = 0; /* position innerhalb der Zeile */
+    int pos = 0;
     char* out;
     //char out[strlen(str)];
 

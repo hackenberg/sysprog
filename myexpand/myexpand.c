@@ -1,15 +1,16 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
-#include <ctype.h>
 #define MAXLENGTH 80
 
-// TODO: check guidelines
+/* TODO: check guidelines */
 
 /* char pointer that points to the string literal ("usage: ...") */
 const char* usage = "usage: myexpand [-t tabstop] [file...]";
 
-//char[] expand(char *c);
+char* strexp(char*, int);
 
 int main(int argc, char **argv)
 {
@@ -119,30 +120,34 @@ int main(int argc, char **argv)
     return 0;
 }
 
-/*
-char[] expand(char *c)
+char* strexp(char* str, int tabstop)
 {
-    int pos = 0;  position innerhalb einer Zeile der Datei 
+    int pos = 0; /* position innerhalb der Zeile */
+    char* out;
+    //char out[strlen(str)];
 
     char x;
-    while((x = fgetc
-    if(x == '\t')
+    while((x = *str++) != '\0')
+    //while((*out++ = *str++) != '\0')
     {
-        int p = tabstop * ((pos / tabstop) + 1);
-        while(pos++ < p)  postincrement!!! 
+        if(x == '\t')
         {
-            printf(" ");
+            int p = tabstop * ((pos / tabstop) + 1);
+            while(pos++ < p) /* postincrement!!! */
+            {
+                *out++ = ' ';
+                pos++;
+            }
+        }
+        else if(x == '\n')
+        {
+            *out++ = x;
+        }
+        else
+        {
+            *out++ = x;
+            pos++;
         }
     }
-    else if(x == '\n')
-    {
-        printf("%c", x);
-        pos = 0;
-    }
-    else
-    {
-        printf("%c",x);
-        pos++;
-    }
+    return out;
 }
-*/

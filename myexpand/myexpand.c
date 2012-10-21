@@ -21,7 +21,7 @@ int main(int argc, char **argv)
             case 't':
                 if(isdigit((int) *optarg)) /* sanity check of the input */
                 {
-                    tabstop = atoi(optarg); /* atoi() is forbidden */
+                    tabstop = strtol(optarg,NULL,0);
                     argshift += 2; /* option and argument --> 2 fields in argv */
                 }
                 else

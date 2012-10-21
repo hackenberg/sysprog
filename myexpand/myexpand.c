@@ -4,9 +4,12 @@
 #include <ctype.h>
 #define MAXLENGTH 80
 
-// TODO: Richtlinien überprüfen
+// TODO: check guidelines
 
+/* char pointer that points to the string literal ("usage: ...") */
+const char* usage = "usage: myexpand [-t tabstop] [file...]";
 
+//char[] expand(char *c);
 
 int main(int argc, char **argv)
 {
@@ -27,17 +30,17 @@ int main(int argc, char **argv)
                 }
                 else
                 {
-                    fprintf(stderr, "usage: myexpand [-t tabstop] [file...]");
+                    fprintf(stderr, usage);
                     return(-1);
                 }
                 break;
 
             case ':': /* nur wenn kein Dateiname und kein Argument vorliegt */
-                fprintf(stderr, "usage: myexpand [-t tabstop] [file...]");
+                fprintf(stderr, usage);
                 return(-1);
 
             case '?':
-                fprintf(stderr, "usage: myexpand [-t tabstop] [file...]");
+                fprintf(stderr, usage);
                 return(-1);
         }
     }
@@ -45,11 +48,11 @@ int main(int argc, char **argv)
     if(argv[optind] == 0) /* kein Dateiname angegeben */
     {
         /* von stdin einlesen */
-        char str[MAXLENGTH];
+        char* str;
         while(fgets(str,MAXLENGTH,stdin) != 0)
         {
             char x;
-            while((x = fgetc(str)) != EOF)
+            while((x = *str++) != '\0')
             {
                 if(x == '\t')
                 {
@@ -115,3 +118,31 @@ int main(int argc, char **argv)
     }
     return 0;
 }
+
+/*
+char[] expand(char *c)
+{
+    int pos = 0;  position innerhalb einer Zeile der Datei 
+
+    char x;
+    while((x = fgetc
+    if(x == '\t')
+    {
+        int p = tabstop * ((pos / tabstop) + 1);
+        while(pos++ < p)  postincrement!!! 
+        {
+            printf(" ");
+        }
+    }
+    else if(x == '\n')
+    {
+        printf("%c", x);
+        pos = 0;
+    }
+    else
+    {
+        printf("%c",x);
+        pos++;
+    }
+}
+*/

@@ -15,7 +15,7 @@ char* strexp(char*, int);
 int main(int argc, char **argv)
 {
     unsigned int tabstop = 8;
-    int ptr = 0;
+    int pos = 0;
     char argshift = 0; /* counts how many options have been used */
 
     char c;
@@ -63,15 +63,10 @@ int main(int argc, char **argv)
                         printf(" ");
                     }
                 }
-                else if(x == '\n')
-                {
-                    printf("%c", x);
-                    pos = 0;
-                }
                 else
                 {
                     printf("%c", x);
-                    pos++;
+                    (x == '\n') ? pos = 0 : pos++;
                 }
             }
         }
@@ -102,15 +97,10 @@ int main(int argc, char **argv)
                             printf(" ");
                         }
                     }
-                    else if(x == '\n')
-                    {
-                        printf("%c", x);
-                        pos = 0;
-                    }
                     else
                     {
                         printf("%c",x);
-                        pos++;
+                        (x == '\n') ? pos = 0 : pos++;
                     }
                 }
                 fclose(fp);

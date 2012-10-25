@@ -35,10 +35,10 @@ int main(int argc, char **argv)
                 break;
             case ':': /* only if there's no option AND no filename */
                 fprintf(stderr, usage);
-                return(1);
+                return 1;
             case '?':
                 fprintf(stderr, usage);
-                return(1);
+                return 1;
             default:
                 assert(0);
         }
@@ -46,7 +46,42 @@ int main(int argc, char **argv)
 
     if(argv[optind] == 0) /* if no filename specified --> read from stdin */
     {
-        char* str;
+        char* buffer = malloc(sizeof *buffer);
+        char* temp;
+        if(buffer == NULL)
+        {
+            printf("Error allocating memory!\n");
+            return 1;
+        }
+        else
+        {
+            int i;
+            char c;
+            for(i=0;;i++)
+            {
+                c = getchar();
+                if(c == EOF)
+                    break;
+                buffer[i] = c;
+                temp = realloc(buffer, (i+2)*sizeof(char));
+                if(temp == NULL)
+                {
+                    free(buffer);
+                    printf("Error allocating memory!\n");
+                    return 1;
+                }
+                else
+                {
+                    buffer = temp;
+                }
+            }
+        }
+        printf("%s", buffer);
+        free(buffer);
+
+
+
+        /*
         while(fgets(str,MAXLENGTH,stdin) != 0)
         {
             char x;
@@ -58,7 +93,7 @@ int main(int argc, char **argv)
                     while(pos < p)
                     {
                         printf(" ");
-                        pos++; /* cannot be pulled in to the loop head */
+                        pos++;
                     }
                 }
                 else
@@ -68,6 +103,7 @@ int main(int argc, char **argv)
                 }
             }
         }
+        */
     }
     else /* --> read file(s) */
     {

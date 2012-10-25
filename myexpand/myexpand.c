@@ -31,16 +31,28 @@ static char *stdin_argv[] =
 
 static char const shortopts[] = "t:";
 
-/*
+/* takes the old file as argument, closes it and returns the next file */
 static FILE* nextFile(FILE *fp)
 {
+    fclose(fp);
+
+    fp = fopen(*file_list++, "r");
+    if(fp == NULL)
+    {
+        // TODO: errorhandling
+        printf("could not open file: %s", *file_list);
+        return NULL; // nicht optimal
+    }
+    else
+    {
+        return fp;
+    }
 }
-    
 
 static void expand(void)
 {
+    FILE *fp = nextFile(NULL);
 }
-*/
 
 int main(int argc, char **argv)
 {
@@ -58,7 +70,7 @@ int main(int argc, char **argv)
                     {
                         // TODO: errorhandling
                         printf("tabstop cannot be 0");
-                        return 0;
+                        return 1;
                     }
                 }
                 else
@@ -86,10 +98,14 @@ int main(int argc, char **argv)
 
     file_list = (optind < argc ? &argv[optind] : stdin_argv);
 
+    expand();
+
+    /*
     while(*file_list != NULL)
     {
         printf("%s\n", *file_list++);
     }
+    */
 
     return 0;
 }

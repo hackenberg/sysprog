@@ -1,13 +1,15 @@
 CC = gcc
-CFLAGS = -std=c99 -pedantic -Wall -D_XOPEN_SOURCE=500 -D_BSD_SOURCE -g -c
+DEFS = -D_XOPEN_SOURCE=500 -D_BSD_SOURCE
+CFLAGS = -std=c99 -pedantic -Wall -g $(DEFS)
 
-CFILES = myexpand.c
-PGMNAME = myexpand
+all: myexpand
 
-all: $(PGMNAME)
+myexpand: myexpand.o
+	$(CC) $(CFLAGS) -o $@ $^
 
-$(PGMNAME): myexpand.c
-	$(CC) $(CFLAGS) -o myexpand myexpand.c
+myexpand.o: myexpand.c
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-	rm -vf $(PGMNAME) $(PGMNAME).exe *~
+	rm -vf myexpand.o myexpand *~
+.PHONY: clean

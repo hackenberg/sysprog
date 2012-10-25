@@ -30,7 +30,7 @@ static char const shortopts[] = "t:";
  * from stdin.
  * @return 0 on success; otherwise non-zero
  */
-static void expand_files(void)
+static int expand_files(void)
 {
     //FILE *fp = nextFile(NULL);
     FILE *fp;
@@ -39,10 +39,9 @@ static void expand_files(void)
         fp = fopen(*file_list++, "r");
         if(fp == NULL)
         {
-	    fprintf(stderr, strerror(errno));
-
             // TODO: errorhandling
-            printf("could not open file: %s", *file_list);
+	    fprintf(stderr, strerror(errno));
+	    return 1;
         }
         else
         {
@@ -68,7 +67,7 @@ static void expand_files(void)
         }
         (void) fclose(fp);
     }
-    return;
+    return 0;
 }
 
 /**
@@ -76,7 +75,7 @@ static void expand_files(void)
  * @details calls the expand function for stdin
  * @return 0 on success; otherwise non-zero
  */
-static void expand_stdin(void)
+static int expand_stdin(void)
 {
     char *buffer = malloc(sizeof (char));
     char *tmp;
@@ -84,7 +83,7 @@ static void expand_stdin(void)
     {
         // TODO: errorhandling
         printf("Error allocating memory!\n");
-        exit(EXIT_FAILURE);
+	return 1;
     }
     else
     {
@@ -104,8 +103,8 @@ static void expand_stdin(void)
                     {
                         // TODO: errorhandling
                         free(buffer);
-                        printf("Error allocating memory!\n");
-                        exit(EXIT_FAILURE);
+			fprintf(stderr, strerror(errno));
+			return 1;
                     }
                     else
                     {
@@ -123,8 +122,8 @@ static void expand_stdin(void)
                 {
                     // TODO: errorhandling
                     free(buffer);
-                    printf("Error allocating memory!\n");
-                    exit(EXIT_FAILURE);
+		    fprintf(stderr, strerror(errno));
+		    return 1;
                 }
                 else
                 {
@@ -140,14 +139,14 @@ static void expand_stdin(void)
         {
             // TODO: errorhandling
             free(buffer);
-            printf("Error allocating memory!\n");
-            exit(EXIT_FAILURE);
+	    fprintf(stderr, strerror(errno));
+	    return 1;
         }
         buffer[i] = '\0';
         printf("%s", buffer);
         free(buffer);
     }
-    return;
+    return 0;
 }
 
 /**
@@ -200,13 +199,15 @@ int main(int argc, char **argv)
         }
     }
 
+    char error = 0;
+
     if(optind < argc)
     {
         file_list = &argv[optind];
-        expand_files();
+        error = expand_files();
     }
     else
-        expand_stdin();
+        error = expand_stdin();
 
-    return 0;
+    return error;
 }

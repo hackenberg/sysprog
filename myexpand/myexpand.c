@@ -40,7 +40,7 @@ static int expand_files(void)
         if(fp == NULL)
         {
             // TODO: errorhandling
-	    fprintf(stderr, strerror(errno));
+	    (void) fprintf(stderr, strerror(errno));
 	    return 1;
         }
         else
@@ -54,13 +54,13 @@ static int expand_files(void)
                     int p = tabstop * ((pos / tabstop) + 1);
                     while(pos < p)
                     {
-                        printf(" ");
+                        (void) printf(" ");
                         pos++;
                     }
                 }
                 else
                 {
-                    printf("%c", c);
+                    (void) printf("%c", c);
                     c == '\n' ? pos = 0 : pos++;
                 }
             }
@@ -82,7 +82,7 @@ static int expand_stdin(void)
     if(buffer == 0)
     {
         // TODO: errorhandling
-        printf("Error allocating memory!\n");
+        (void) printf("Error allocating memory!\n");
 	return 1;
     }
     else
@@ -103,7 +103,7 @@ static int expand_stdin(void)
                     {
                         // TODO: errorhandling
                         free(buffer);
-			fprintf(stderr, strerror(errno));
+			(void) fprintf(stderr, strerror(errno));
 			return 1;
                     }
                     else
@@ -122,7 +122,7 @@ static int expand_stdin(void)
                 {
                     // TODO: errorhandling
                     free(buffer);
-		    fprintf(stderr, strerror(errno));
+		    (void) fprintf(stderr, strerror(errno));
 		    return 1;
                 }
                 else
@@ -139,11 +139,11 @@ static int expand_stdin(void)
         {
             // TODO: errorhandling
             free(buffer);
-	    fprintf(stderr, strerror(errno));
+	    (void) fprintf(stderr, strerror(errno));
 	    return 1;
         }
         buffer[i] = '\0';
-        printf("%s", buffer);
+        (void) printf("%s", buffer);
         free(buffer);
     }
     return 0;
@@ -172,26 +172,26 @@ int main(int argc, char **argv)
                     if(tabstop == 0)
                     {
                         // TODO: errorhandling
-                        printf("tabstop cannot be 0");
+                        (void) printf("tabstop cannot be 0");
                         return 1;
                     }
                 }
                 else
                 {
                     // TODO: errorhandling
-                    printf("NaN");
+                    (void) printf("NaN");
                     return 1;
                 }
                 break;
 
             case ':':
                 // TODO: errorhandling
-                printf("case ':'");
+                (void) printf("case ':'");
                 return 1;
 
             case '?':
                 // TODO: errorhandling
-                printf("case '?'");
+                (void) printf("case '?'");
                 return 1;
 
             default:

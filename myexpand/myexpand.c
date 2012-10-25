@@ -55,9 +55,10 @@ int main(int argc, char **argv)
                 if(x == '\t')
                 {
                     int p = tabstop * ((pos / tabstop) + 1);
-                    while(pos++ < p)
+                    while(pos < p)
                     {
                         printf(" ");
+                        pos++; /* cannot be pulled in to the loop head */
                     }
                 }
                 else

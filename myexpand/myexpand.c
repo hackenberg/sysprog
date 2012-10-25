@@ -53,27 +53,45 @@ int main(int argc, char **argv)
             printf("Error allocating memory!\n");
             return 1;
         }
-        else
+        assert(buffer != NULL);
+        int i = 0;
+        char x;
+        while((x = getchar()) != EOF)
         {
-            int i;
-            char c;
-            for(i=0;;i++)
+            if(x == '\t')
             {
-                c = getchar();
-                if(c == EOF)
-                    break;
-                buffer[i] = c;
-                temp = realloc(buffer, (i+2)*sizeof(char));
+                int p = tabstop * ((pos / tabstop) + 1);
+                assert(pos < p);
+                buffer = temp;
+                while(pos < p)
+                {
+                    temp = realloc(buffer, (i+1)*sizeof(char));
+                    if(temp == NULL)
+                    {
+                        free(buffer);
+                        printf("Error allocating memory!\n");
+                        return 1;
+                    }
+                    assert(temp != NULL);
+                    buffer[i] = ' ';
+                    pos++;
+                    i++;
+                }
+            }
+            else
+            {
+                temp = realloc(buffer, (i+1)*sizeof(char));
                 if(temp == NULL)
                 {
                     free(buffer);
-                    printf("Error allocating memory!\n");
+                    printf("Error allocating memory2!\n");
                     return 1;
                 }
-                else
-                {
-                    buffer = temp;
-                }
+                assert(temp != NULL);
+                buffer = temp;
+                buffer[i] = x;
+                (x == '\n') ? pos = 0 : pos++;
+                i++;
             }
         }
         printf("%s", buffer);

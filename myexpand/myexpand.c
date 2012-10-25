@@ -6,156 +6,90 @@
 #include <unistd.h>
 #define MAXLENGTH 80 /* maximum length of an input line from stdin */
 
+/* ISDIGIT differs from isdigit, as follows:
+   - Its arg may be any int or unsigned int; it need not be an unsigned char
+     or EOF.
+   - It's typically faster.
+   POSIX says that only '0' through '9' are digits.  Prefer ISDIGIT to
+   isdigit unless it's important to use the locale's definition
+   of 'digit' even when the host does not conform to POSIX.  */
+#define ISDIGIT(c) ((unsigned int) (c) - '0' <= 9)
+
 /* TODO: headerfile erstellen mit z.b. define Maxlength */
 
-const char* usage = "usage: myexpand [-t tabstop] [file...]";
+static const char* usage = "usage: myexpand [-t tabstop] [file...]";
+static unsigned int tabstop = 8;
+
+/* Null-terminated array of input filenames. */
+static char **file_list;
+
+/* Default for 'file_list' if no files are given on the command line. */
+static char *stdin_argv[] =
+{
+    (char *) "-", NULL
+};
+
+static char const shortopts[] = "t:";
+
+/*
+static FILE* nextFile(FILE *fp)
+{
+}
+    
+
+static void expand(void)
+{
+}
+*/
 
 int main(int argc, char **argv)
 {
-    unsigned int tabstop = 8;
-    unsigned int pos = 0;
-    char argshift = 0; /* counts how many options and/or args have been used */
+    int c;
 
-    char c;
-    while((c = getopt(argc,argv,":t:")) != -1) /* parse input */
+    while((c = getopt(argc, argv, shortopts)) != -1)
     {
         switch(c)
         {
             case 't':
-                if(isdigit((int) *optarg)) /* sanity check of the input */
+                if(ISDIGIT(*optarg))
                 {
-                    tabstop = strtol(optarg,NULL,0);
-                    argshift += 2; /* option and argument --> 2 fields in argv */
+                    tabstop = strtol(optarg, NULL, 0);
+                    if(tabstop == 0)
+                    {
+                        // TODO: errorhandling
+                        printf("tabstop cannot be 0");
+                        return 0;
+                    }
                 }
                 else
                 {
-                    fprintf(stderr, usage);
-                    return(1);
+                    // TODO: errorhandling
+                    printf("NaN");
+                    return 1;
                 }
                 break;
-            case ':': /* only if there's no option AND no filename */
-                fprintf(stderr, usage);
+
+            case ':':
+                // TODO: errorhandling
+                printf("case ':'");
                 return 1;
+
             case '?':
-                fprintf(stderr, usage);
+                // TODO: errorhandling
+                printf("case '?'");
                 return 1;
+
             default:
                 assert(0);
         }
     }
 
-    if(argv[optind] == 0) /* if no filename specified --> read from stdin */
+    file_list = (optind < argc ? &argv[optind] : stdin_argv);
+
+    while(*file_list != NULL)
     {
-        char* buffer = malloc(sizeof *buffer);
-        char* temp;
-        if(buffer == NULL)
-        {
-            printf("Error allocating memory!\n");
-            return 1;
-        }
-        assert(buffer != NULL);
-        int i = 0;
-        char x;
-        while((x = getchar()) != EOF)
-        {
-            if(x == '\t')
-            {
-                int p = tabstop * ((pos / tabstop) + 1);
-                assert(pos < p);
-                buffer = temp;
-                while(pos < p)
-                {
-                    temp = realloc(buffer, (i+1)*sizeof(char));
-                    if(temp == NULL)
-                    {
-                        free(buffer);
-                        printf("Error allocating memory!\n");
-                        return 1;
-                    }
-                    assert(temp != NULL);
-                    buffer[i] = ' ';
-                    pos++;
-                    i++;
-                }
-            }
-            else
-            {
-                temp = realloc(buffer, (i+1)*sizeof(char));
-                if(temp == NULL)
-                {
-                    free(buffer);
-                    printf("Error allocating memory2!\n");
-                    return 1;
-                }
-                assert(temp != NULL);
-                buffer = temp;
-                buffer[i] = x;
-                (x == '\n') ? pos = 0 : pos++;
-                i++;
-            }
-        }
-        printf("%s", buffer);
-        free(buffer);
-
-
-
-        /*
-        while(fgets(str,MAXLENGTH,stdin) != 0)
-        {
-            char x;
-            while((x = *str++) != '\0')
-            {
-                if(x == '\t')
-                {
-                    int p = tabstop * ((pos / tabstop) + 1);
-                    while(pos < p)
-                    {
-                        printf(" ");
-                        pos++;
-                    }
-                }
-                else
-                {
-                    printf("%c", x);
-                    (x == '\n') ? pos = 0 : pos++;
-                }
-            }
-        }
-        */
+        printf("%s\n", *file_list++);
     }
-    else /* --> read file(s) */
-    {
-        argc -= argshift;
-        argv += argshift;
-        while(--argc > 0)
-        {
-            FILE *fp = fopen(*++argv,"r");
-            if(fp == 0) /* NULL pointer --> failure */
-            {
-                printf("Could not open file: \"%s\"", *argv);
-            }
-            else
-            {
-                char x;
-                while((x = fgetc(fp)) != EOF)
-                {
-                    if(x == '\t')
-                    {
-                        int p = tabstop * ((pos / tabstop) + 1);
-                        while(pos++ < p)
-                        {
-                            printf(" ");
-                        }
-                    }
-                    else
-                    {
-                        printf("%c",x);
-                        (x == '\n') ? pos = 0 : pos++;
-                    }
-                }
-                fclose(fp);
-            }
-        }
-    }
+
     return 0;
 }

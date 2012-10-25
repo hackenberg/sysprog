@@ -82,8 +82,8 @@ static int expand_stdin(void)
     if(buffer == 0)
     {
         // TODO: errorhandling
-        (void) printf("Error allocating memory!\n");
-	return 1;
+        (void) fprintf(stderr, "Error allocating memory.\n");
+		return 1;
     }
     else
     {
@@ -103,8 +103,8 @@ static int expand_stdin(void)
                     {
                         // TODO: errorhandling
                         free(buffer);
-			(void) fprintf(stderr, strerror(errno));
-			return 1;
+						(void) fprintf(stderr, "Error reallocating memory.\n");
+						return 1;
                     }
                     else
                     {
@@ -122,8 +122,8 @@ static int expand_stdin(void)
                 {
                     // TODO: errorhandling
                     free(buffer);
-		    (void) fprintf(stderr, strerror(errno));
-		    return 1;
+					(void) fprintf(stderr, "Error reallocating memory.\n");
+					return 1;
                 }
                 else
                 {
@@ -139,8 +139,8 @@ static int expand_stdin(void)
         {
             // TODO: errorhandling
             free(buffer);
-	    (void) fprintf(stderr, strerror(errno));
-	    return 1;
+			(void) fprintf(stderr, "Error reallocating memory.\n");
+			return 1;
         }
         buffer[i] = '\0';
         (void) printf("%s", buffer);

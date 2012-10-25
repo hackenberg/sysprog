@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <ctype.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -23,6 +24,12 @@ static char **file_list;
 
 static char const shortopts[] = "t:";
 
+/**
+ * @brief expands a list of files
+ * @details calls the expand function for a list of files instead of reading
+ * from stdin.
+ * @return 0 on success; otherwise non-zero
+ */
 static void expand_files(void)
 {
     //FILE *fp = nextFile(NULL);
@@ -32,6 +39,8 @@ static void expand_files(void)
         fp = fopen(*file_list++, "r");
         if(fp == NULL)
         {
+	    fprintf(stderr, strerror(errno));
+
             // TODO: errorhandling
             printf("could not open file: %s", *file_list);
         }
@@ -57,11 +66,16 @@ static void expand_files(void)
                 }
             }
         }
-        fclose(fp);
+        (void) fclose(fp);
     }
     return;
 }
 
+/**
+ * @brief expands stdin
+ * @details calls the expand function for stdin
+ * @return 0 on success; otherwise non-zero
+ */
 static void expand_stdin(void)
 {
     char *buffer = malloc(sizeof (char));
@@ -136,6 +150,15 @@ static void expand_stdin(void)
     return;
 }
 
+/**
+ * @brief Program entry point
+ * @details reads options and arguments with getopt and calls the appropriate
+ * expand function.
+ *
+ * @param argc The argument counter
+ * @param argv The argument vector
+ * @return 0 on success; otherwise non-zero
+ */
 int main(int argc, char **argv)
 {
     int c;

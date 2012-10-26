@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#define MAXLENGTH 80 /* maximum length of an input line from stdin */
 
 /* ISDIGIT differs from isdigit, as follows:
    - Its arg may be any int or unsigned int; it need not be an unsigned char
@@ -15,8 +14,6 @@
    of 'digit' even when the host does not conform to POSIX.  */
 #define ISDIGIT(c) ((unsigned int) (c) - '0' <= 9)
 
-/* TODO: headerfile erstellen mit z.b. define Maxlength */
-
 static const char* usage = "usage: myexpand [-t tabstop] [file...]";
 static unsigned int tabstop = 8;
 static unsigned int pos = 0;
@@ -24,37 +21,12 @@ static unsigned int pos = 0;
 /* Null-terminated array of input filenames. */
 static char **file_list;
 
-/* Default for 'file_list' if no files are given on the command line. */
-static char *stdin_argv[] =
-{
-    (char *) "-", NULL
-};
-
 static char const shortopts[] = "t:";
-
-/* takes the old file as argument, closes it and returns the next file */
-static FILE* nextFile(FILE *fp)
-{
-    fclose(fp);
-
-    fp = fopen(*file_list++, "r");
-    if(fp == NULL)
-    {
-        // TODO: errorhandling
-        printf("could not open file: %s", *file_list);
-        return NULL; // nicht optimal
-    }
-    else
-    {
-        return fp;
-    }
-}
 
 static void expand(void)
 {
     //FILE *fp = nextFile(NULL);
     FILE *fp;
-    //while(optind++ < argc)
     while(*file_list != NULL)
     {
         fp = fopen(*file_list++, "r");
@@ -70,6 +42,7 @@ static void expand(void)
             {
                 if(c == '\t')
                 {
+                    assert(tabstop > 0);
                     int p = tabstop * ((pos / tabstop) + 1);
                     while(pos < p)
                     {
@@ -85,6 +58,82 @@ static void expand(void)
             }
         }
         fclose(fp);
+    }
+    return;
+}
+
+static void expand_stdin(void)
+{
+    char *buffer = malloc(sizeof (char));
+    char *tmp;
+    if(buffer == 0)
+    {
+        // TODO: errorhandling
+        printf("Error allocating memory!\n");
+        exit(EXIT_FAILURE);
+    }
+    else
+    {
+        int i = 0;
+        char c;
+        while((c = getchar()) != EOF)
+        {
+            if(c == '\t')
+            {
+                assert(tabstop > 0);
+                int p = tabstop * ((pos / tabstop) + 1); // maybe as macro?
+                buffer = tmp;
+                while(pos < p)
+                {
+                    tmp = realloc(buffer, (i+1)*sizeof(char));
+                    if(tmp == 0)
+                    {
+                        // TODO: errorhandling
+                        free(buffer);
+                        printf("Error allocating memory!\n");
+                        exit(EXIT_FAILURE);
+                    }
+                    else
+                    {
+                        buffer = tmp;
+                        buffer[i] = ' ';
+                        //printf(" ");
+                        pos++;
+                        i++;
+                    }
+                }
+            }
+            else
+            {
+                tmp = realloc(buffer, (i+1)*sizeof(char));
+                if(tmp == 0)
+                {
+                    // TODO: errorhandling
+                    free(buffer);
+                    printf("Error allocating memory!\n");
+                    exit(EXIT_FAILURE);
+                }
+                else
+                {
+                    buffer = tmp;
+                    buffer[i] = c;
+                    //printf("%c", c);
+                    c == '\n' ? pos = 0 : pos++;
+                    i++;
+                }
+            }
+        }
+        tmp = realloc(buffer, (i)*sizeof(char));
+        if(tmp == 0)
+        {
+            // TODO: errorhandling
+            free(buffer);
+            printf("Error allocating memory!\n");
+            exit(EXIT_FAILURE);
+        }
+        buffer[i] = '\0';
+        printf("%s", buffer);
+        free(buffer);
     }
     return;
 }
@@ -130,9 +179,16 @@ int main(int argc, char **argv)
         }
     }
 
-    file_list = (optind < argc ? &argv[optind] : stdin_argv);
+    //file_list = (optind < argc ? &argv[optind] : NULL);
 
-    expand();
+    if(optind < argc)
+    {
+        file_list = &argv[optind];
+        expand();
+    }
+    else
+        expand_stdin();
+
 
     /*
     while(*file_list != NULL)

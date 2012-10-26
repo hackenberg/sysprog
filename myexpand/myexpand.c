@@ -23,7 +23,7 @@ static char **file_list;
 
 static char const shortopts[] = "t:";
 
-static void expand(void)
+static void expand_files(void)
 {
     //FILE *fp = nextFile(NULL);
     FILE *fp;
@@ -97,7 +97,6 @@ static void expand_stdin(void)
                     {
                         buffer = tmp;
                         buffer[i] = ' ';
-                        //printf(" ");
                         pos++;
                         i++;
                     }
@@ -117,7 +116,6 @@ static void expand_stdin(void)
                 {
                     buffer = tmp;
                     buffer[i] = c;
-                    //printf("%c", c);
                     c == '\n' ? pos = 0 : pos++;
                     i++;
                 }
@@ -179,23 +177,13 @@ int main(int argc, char **argv)
         }
     }
 
-    //file_list = (optind < argc ? &argv[optind] : NULL);
-
     if(optind < argc)
     {
         file_list = &argv[optind];
-        expand();
+        expand_files();
     }
     else
         expand_stdin();
-
-
-    /*
-    while(*file_list != NULL)
-    {
-        printf("%s\n", *file_list++);
-    }
-    */
 
     return 0;
 }

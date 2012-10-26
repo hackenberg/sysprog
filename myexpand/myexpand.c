@@ -14,7 +14,7 @@
    of 'digit' even when the host does not conform to POSIX.  */
 #define ISDIGIT(c) ((unsigned int) (c) - '0' <= 9)
 
-static const char* usage = "usage: myexpand [-t tabstop] [file...]";
+//static const char* usage = "usage: myexpand [-t tabstop] [file...]";
 static unsigned int tabstop = 8;
 static unsigned int pos = 0;
 

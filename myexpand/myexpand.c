@@ -19,6 +19,7 @@
 
 static const char* usage = "usage: myexpand [-t tabstop] [file...]";
 static unsigned int tabstop = 8;
+static unsigned int pos = 0;
 
 /* Null-terminated array of input filenames. */
 static char **file_list;
@@ -51,13 +52,46 @@ static FILE* nextFile(FILE *fp)
 
 static void expand(void)
 {
-    FILE *fp = nextFile(NULL);
+    //FILE *fp = nextFile(NULL);
+    FILE *fp;
+    //while(optind++ < argc)
+    while(*file_list != NULL)
+    {
+        fp = fopen(*file_list++, "r");
+        if(fp == NULL)
+        {
+            // TODO: errorhandling
+            printf("could not open file: %s", *file_list);
+        }
+        else
+        {
+            char c;
+            while((c = fgetc(fp)) != EOF)
+            {
+                if(c == '\t')
+                {
+                    int p = tabstop * ((pos / tabstop) + 1);
+                    while(pos < p)
+                    {
+                        printf(" ");
+                        pos++;
+                    }
+                }
+                else
+                {
+                    printf("%c", c);
+                    c == '\n' ? pos = 0 : pos++;
+                }
+            }
+        }
+        fclose(fp);
+    }
+    return;
 }
 
 int main(int argc, char **argv)
 {
     int c;
-
     while((c = getopt(argc, argv, shortopts)) != -1)
     {
         switch(c)

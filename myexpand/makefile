@@ -11,5 +11,5 @@ myexpand.o: myexpand.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-	rm -vf myexpand.o myexpand *~
+	rm -vf myexpand.o myexpand *.stackdump *~
 .PHONY: clean

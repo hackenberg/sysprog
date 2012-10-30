@@ -1,11 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <unistd.h>
 #include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
 
 
 /* === Constants === */
+
+#define MAX_TRIES (35)
+#define SLOTS (5)
+#define COLORS (8)
 
 #define RANGE (32)
 
@@ -25,7 +32,7 @@ static int sockfd = -1;
 
 struct opts {
 	long int portno;
-	uint8_t adress[RANGE];
+	char address[RANGE];
 };
 
 
@@ -39,17 +46,45 @@ struct opts {
  */
 static void parse_args(int argc, char **argv, struct opts *options);
 
+
 int main(int argc, char **argv)
 {
 	struct opts options;
+	int len, rc;
+	struct sockaddr_in address;
+	char result;
+	char guess[SLOTS];
 	
 	parse_args(argc, argv, &options);
 
 	/* Create socket for client */
-	sockfd = socket(AF_INET, SOCK_STREAM, 0);
+	sockfd = socket(PF_INET, SOCK_STREAM, 0);
+	if(sockfd == -1) {
+		// TODO: errorhandling
+		return 1;
+	}
 
 	/* Name the socket as agreed with server */
-	adress.sin_family = AF_INET;
+	address.sin_family = AF_INET;
+	inet_pton(AF_INET, options.address, &address.sin_addr);
+	address.sin_port = htons(options.portno);
+
+	result = connect(sockfd, (struct sockaddr *)&address, len);
+	if(result == -1) {
+		// TODO: errorhandling
+		return 1;
+	}
+
+	int i;
+	for(i = 0; i < SLOTS; i++)
+	{
+		/* Read and write via sockfd */
+		rc = write(sockfd, &guess[i], 1);
+		if(rc == -1) break;
+
+		//read(sockfd, &guess, 1);
+	}
+	close(sockfd);
 
 	return 0;
 }

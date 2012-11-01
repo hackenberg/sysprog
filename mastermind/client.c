@@ -1,108 +1,63 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
+#include <string.h>
+#include <strings.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-
+#include <netdb.h>
 
 /* === Constants === */
 
-#define MAX_TRIES (35)
-#define SLOTS (5)
-#define COLORS (8)
-
-#define RANGE (32)
-
+#define BUFFER_BYTES (2)
 
 /* === Global Variables === */
 
-/* Name of the program */
-static const char *progname = "client"; /* default name */
-
-/* File descriptor for server socket */
 static int sockfd = -1;
 
-/* File descriptor for connection socket */
-//static int connfd = -1;
-
-/* === Type Definitions === */
-
-struct opts {
-	long int portno;
-	char address[RANGE];
-};
-
-
-/* === Prototypes === */
-
-/**
- * @brief Parse command line options
- * @param argc The argument counter
- * @param argv The argument vector
- * @param options Struct where parsed arguments are stored
- */
-static void parse_args(int argc, char **argv, struct opts *options);
-
+void error(const char *msg)
+{
+	perror(msg);
+	exit(1);
+}
 
 int main(int argc, char **argv)
 {
-	struct opts options;
-	int len, rc;
-	struct sockaddr_in address;
-	char result;
-	char guess[SLOTS];
-	
-	parse_args(argc, argv, &options);
-
-	/* Create socket for client */
-	sockfd = socket(PF_INET, SOCK_STREAM, 0);
-	if(sockfd == -1) {
-		// TODO: errorhandling
-		return 1;
-	}
-
-	/* Name the socket as agreed with server */
-	address.sin_family = AF_INET;
-	inet_pton(AF_INET, options.address, &address.sin_addr);
-	address.sin_port = htons(options.portno);
-
-	result = connect(sockfd, (struct sockaddr *)&address, len);
-	if(result == -1) {
-		// TODO: errorhandling
-		return 1;
-	}
-
-	int i;
-	for(i = 0; i < SLOTS; i++)
-	{
-		/* Read and write via sockfd */
-		rc = write(sockfd, &guess[i], 1);
-		if(rc == -1) break;
-
-		//read(sockfd, &guess, 1);
-	}
-	close(sockfd);
-
-	return 0;
-}
-
-static void parse_args(int argc, char **argv, struct opts *options)
-{
-	char *addr_arg;
-	char *port_arg;
+	int portno;
+	struct sockaddr_in serv_addr;
+	struct hostent *server;
+	char buffer[BUFFER_BYTES];
 	char *endptr;
 
-	if(argc > 0) {
-		progname = argv[0];
-	}
 	if(argc < 3) {
-		// TODO: errorhandling
+		(void) fprintf(stderr, "usage: %s hostname port", argv[0]);
+		exit(1);
 	}
-	addr_arg = argv[1];
-	port_arg = argv[2];
 
-	options->portno = strtol(port_arg, &endptr, 10);
+	portno = strtol(argv[2], &endptr, 10);
+	if(endptr != NULL) {
+		(void) fprintf(stderr, "ERROR, no such port");
+		exit(1);
+	}
+
+	sockfd = socket(AF_INET, SOCK_STREAM, 0);
+	if(sockfd < 0) {
+		error("ERROR opening socket");
+	}
+	server = gethostbyname(argv[1]);
+	if(server == NULL) {
+		(void) fprintf(stderr, "ERROR, no such host");
+		exit(1);
+	}
+
+	serv_addr.sin_family = AF_INET;
+	bcopy((char *) server->h_addr_list[0], (char *) &serv_addr.sin_addr.s_addr, server->h_length);
+	serv_addr.sin_port = htons(portno);
+
+	if(connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
+		error("ERROR connecting");
+	}
+
+	return 0;
 }
